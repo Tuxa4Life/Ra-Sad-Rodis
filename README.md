@@ -11,12 +11,13 @@ Players compete in real time by answering challenging questions across different
 - **Live questions** scraped with [Cheerio](https://cheerio.js.org/)
 - **Persistent storage** in [Supabase](https://supabase.com/)
 - **Realtime game state** via [Socket.IO](https://socket.io/)
+- **Server hosted** via [Render](https://render.com/)
 
 ---
 
 ## 🛠️ Tech Stack
 - **Frontend**: React + React Router  
-- **Backend / Data**: Supabase (Postgres + Auth + Realtime)  
+- **Backend / Data**: Supabase & Render (Postgres + Auth + Realtime)  
 - **Scraper**: Node.js + Cheerio  
 - **Realtime / Lobbies**: Node.js + Socket.IO  
 
@@ -30,9 +31,12 @@ git clone https://github.com/tuxa4life/ra-sad-rodis.git
 cd ra-sad-rodis
 
 # Install dependencies
+cd client
 npm install
+npm start
 
-# Start dev server
+cd ../server
+npm install
 npm run dev
 ```
 
@@ -46,3 +50,21 @@ REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
 # If using vite
 VITE_SUPABASE_URL=your_supabase_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+## ⚙️ Environment Variables (Server side)
+
+```bash
+# If using Render
+PORT=your_port
+```
+
+## ✂️ Using scraper
+If you want to use scraper yourself:
+```bash
+cd scraper
+npm install
+node scraper.js
+```
+
+Result file will be output in `Scraper` folder.

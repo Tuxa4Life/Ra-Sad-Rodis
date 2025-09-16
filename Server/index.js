@@ -1,0 +1,141 @@
+import express from 'express'
+import http from 'http'
+import { Server } from 'socket.io'
+import cors from 'cors'
+
+const app = express()
+app.use(cors())
+const server = http.createServer(app)
+const io = new Server(server, {
+    cors: { origin: '*' },
+})
+
+const PORT = process.env.PORT || 5000
+server.listen(PORT, () => {
+    console.log(`Server is running on port: ${PORT}`)
+})
+
+const rooms = {}
+
+// TODO: kick players with same id
+io.on('connection', (socket) => {
+    console.log('> Client connected: ', socket.id)
+    io.emit('client-count', io.engine.clientsCount)
+
+    socket.on('client-data-change', ({ id, username, picture }) => {
+        socket.data.id = id
+        socket.data.username = username
+        socket.data.picture = picture
+
+        console.log(`Client '${socket.id}' signed as '${socket.data.username}' with ID: ${socket.data.id}`)
+    })
+
+    socket.on('disconnect', () => {
+        console.log(`< Client ${socket.id} disconnected.`)
+        io.emit('client-count', io.engine.clientsCount)
+
+        for (const [roomId, room] of Object.entries(rooms)) {
+            room.players = room.players.filter((p) => p.id !== socket.data.id)
+
+            if (room.players.length === 0) {
+                delete rooms[roomId]
+                console.log(`Room ${roomId} deleted (no players left).`)
+            }
+        }
+
+        const idsNcount = Object.entries(rooms).map(([key, e]) => ({
+            name: key,
+            count: e.players.length,
+            maxCount: e.meta.maxPlayerCount,
+        }))
+        io.emit('rooms-changed', idsNcount)
+    })
+
+    socket.on('leave-room', ({ roomId }) => {
+        console.log('Client ', socket.data.username, ' left room ', roomId)
+        socket.leave(roomId)
+
+        for (const [roomId, room] of Object.entries(rooms)) {
+            room.players = room.players.filter((p) => p.id !== socket.data.id)
+
+            if (room.players.length === 0) {
+                delete rooms[roomId]
+                console.log(`Room ${roomId} deleted (no players left).`)
+            }
+        }
+
+        const idsNcount = Object.entries(rooms).map(([key, e]) => ({
+            name: key,
+            count: e.players.length,
+            maxCount: e.meta.maxPlayerCount,
+        }))
+        io.emit('rooms-changed', idsNcount)
+    })
+
+    socket.on('create-room', ({ roomId, count, time }) => {
+        if (!rooms[roomId]) {
+            rooms[roomId] = {
+                id: roomId,
+                players: [],
+                guesser: 0,
+                answers: [],
+                guesses: 0,
+                round: 0,
+                meta: {
+                    maxPlayerCount: count,
+                    maxTime: time,
+                },
+                question: {
+                    question: '',
+                    answer: '',
+                    explanation: '',
+                },
+                chat: [],
+            }
+        }
+
+        if (!rooms[roomId].players.find((player) => player.id === socket.data.id)) {
+            rooms[roomId].players.push({
+                id: socket.data.id,
+                username: socket.data.username,
+                picture: socket.data.picture,
+            })
+        }
+
+        socket.join(roomId)
+
+        console.log('Room created:')
+        console.log(rooms[roomId])
+
+        const idsNcount = Object.entries(rooms).map(([key, e]) => ({
+            name: key,
+            count: e.players.length,
+            maxCount: e.meta.maxPlayerCount,
+        }))
+
+        io.emit('rooms-changed', idsNcount)
+    })
+
+    socket.on('join-room', ({ roomId }) => {
+        if (!rooms[roomId].players.find((player) => player.id === socket.data.id)) {
+            rooms[roomId].players.push({
+                id: socket.data.id,
+                username: socket.data.username,
+                picture: socket.data.picture,
+            })
+
+            console.log(socket.data.username, 'joined room', roomId)
+            socket.join(roomId)
+
+            const idsNcount = Object.entries(rooms).map(([key, e]) => ({
+                name: key,
+                count: e.players.length,
+                maxCount: e.meta.maxPlayerCount,
+            }))
+
+            io.emit('rooms-changed', idsNcount)
+        }
+    })
+
+    
+})

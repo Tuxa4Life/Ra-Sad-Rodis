@@ -22,6 +22,13 @@ io.on('connection', (socket) => {
     console.log('> Client connected: ', socket.id)
     io.emit('client-count', io.engine.clientsCount)
 
+    const idsNcount = Object.entries(rooms).map(([key, e]) => ({ // Loading already existing rooms while opening page
+        name: key,
+        count: e.players.length,
+        maxCount: e.meta.maxPlayerCount,
+    }))
+    io.emit('rooms-changed', idsNcount)
+
     socket.on('client-data-change', ({ id, username, picture }) => {
         socket.data.id = id
         socket.data.username = username
@@ -48,6 +55,7 @@ io.on('connection', (socket) => {
             count: e.players.length,
             maxCount: e.meta.maxPlayerCount,
         }))
+        
         io.emit('rooms-changed', idsNcount)
     })
 
@@ -69,7 +77,9 @@ io.on('connection', (socket) => {
             count: e.players.length,
             maxCount: e.meta.maxPlayerCount,
         }))
+
         io.emit('rooms-changed', idsNcount)
+        io.to(roomId).emit('game-state', rooms[roomId])
     })
 
     socket.on('create-room', ({ roomId, count, time }) => {
@@ -114,6 +124,8 @@ io.on('connection', (socket) => {
         }))
 
         io.emit('rooms-changed', idsNcount)
+        io.to(roomId).emit('game-state', rooms[roomId])
+
     })
 
     socket.on('join-room', ({ roomId }) => {
@@ -134,8 +146,7 @@ io.on('connection', (socket) => {
             }))
 
             io.emit('rooms-changed', idsNcount)
+            io.to(roomId).emit('game-state', rooms[roomId])
         }
     })
-
-    
 })

@@ -1,10 +1,8 @@
 import { createContext, useEffect, useState } from "react";
-import { createRoutesFromChildren, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { io } from 'socket.io-client'
 
 const socket = io(process.env.REACT_APP_SERVER_URL || 'http://localhost:5000')
-
-// TODO: online player counter
 
 const SocketContext = createContext()
 const SocketProvider = ({ children }) => {
@@ -21,6 +19,11 @@ const SocketProvider = ({ children }) => {
         socket.on('rooms-changed', (rooms) => {
             setRooms(rooms)
         })
+
+        socket.on('game-state', (data) => {
+            setGame(data)
+        })
+
     }, [])
 
     const changeClientData = (id, username, picture) => {
@@ -41,7 +44,7 @@ const SocketProvider = ({ children }) => {
         navigate('/')
     }
 
-    const data = {clientCount, changeClientData, rooms, createRoom, joinRoom, leaveRoom}
+    const data = {clientCount, changeClientData, rooms, game, createRoom, joinRoom, leaveRoom}
     return <SocketContext.Provider value={data}>
         { children }
     </SocketContext.Provider>

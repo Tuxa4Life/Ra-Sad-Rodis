@@ -23,7 +23,7 @@ const SocketProvider = ({ children }) => {
         socket.on('game-state', (data) => {
             setGame(data)
         })
-
+        
     }, [])
 
     const changeClientData = (id, username, picture) => {
@@ -44,7 +44,12 @@ const SocketProvider = ({ children }) => {
         navigate('/')
     }
 
-    const data = {clientCount, changeClientData, rooms, game, createRoom, joinRoom, leaveRoom}
+    const sendMessage = (roomId, content) => {
+        const {id, name, picture} = JSON.parse(localStorage.getItem('user'))
+        socket.emit('chat-message', {roomId, authorId: id, author: name, content, picture})
+    }
+
+    const data = {clientCount, changeClientData, rooms, game, createRoom, joinRoom, leaveRoom, sendMessage}
     return <SocketContext.Provider value={data}>
         { children }
     </SocketContext.Provider>

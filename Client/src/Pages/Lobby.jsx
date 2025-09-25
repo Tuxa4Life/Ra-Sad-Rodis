@@ -45,7 +45,10 @@ const Lobby = () => {
         {
             loggedIn && <div>
                 <div className="profile" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', marginTop: '15vh' }}>
-                    <img className="ui avatar image tiny" src={user.picture} alt="" />
+                    <img onError={(currentImg) => {
+                        currentImg.onerror = null
+                        currentImg.target.src = 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'
+                    }} className="ui avatar image tiny" src={user.picture} alt="" />
                     <h1 style={{ marginTop: '10px' }} className="ui header">{user.name}</h1>
                 </div>
 

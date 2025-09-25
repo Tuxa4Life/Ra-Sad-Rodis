@@ -149,4 +149,12 @@ io.on('connection', (socket) => {
             io.to(roomId).emit('game-state', rooms[roomId])
         }
     })
+
+    socket.on('chat-message', ({roomId, authorId, author, content, picture}) => {
+        rooms[roomId].chat.push({
+            authorId, author, content, picture
+        })
+
+        io.to(roomId).emit('game-state', rooms[roomId])
+    })
 })

@@ -47,15 +47,14 @@ Players join rooms, chat in real time, and work together to solve questions scra
 git clone https://github.com/tuxa4life/ra-sad-rodis.git
 cd ra-sad-rodis
 
-# Install dependencies
-npm install
-
 # Run server
 cd server
+npm install
 npm run dev
 
 # Run client
 cd client
+npm install
 npm start
 ```
 

@@ -1,67 +1,64 @@
-# What? Where? When? (რა? სად? როდის?) 🎲
+# 🎲 რა? სად? როდის? (What? Where? When?)
 
-Multiplayer trivia game inspired by the classic show **“What? Where? When?”**.  
-Players compete in real time by answering challenging questions across different topics.
+A real-time online trivia game inspired by the classic Georgian show **"რა? სად? როდის?"**, built with **React**, **Socket.IO**, **Cheerio**, and **Google Login** authentication.
+
+Players join rooms, chat in real time, and work together to solve questions scraped live from trivia sources.
 
 ---
 
 ## 🚀 Features
-- **Multiplayer lobbies** (up to 6 players per room)
-- **Real-time chat** inside lobbies
-- **Live questions** scraped with [Cheerio](https://cheerio.js.org/)
-- **Persistent storage** in [Supabase](https://supabase.com/)
-- **Realtime game state** via [Socket.IO](https://socket.io/)
-- **Server hosted** via [Render](https://render.com/)
+
+* 👥 **Up to 6-player rooms** – create or join game sessions
+* 💬 **Realtime chat** – discuss with teammates before submitting answers
+* ❓ **Dynamic questions** – fetched and scraped in real time with Cheerio
+* ⏱ **Timed rounds** – limited discussion window before answers must be locked in
+* 🔑 **Google login** – secure and quick authentication
+* 🌐 **Hosting** –
+
+  * Backend: [Render](https://render.com)
+  * Frontend: [Netlify](https://www.netlify.com)
 
 ---
 
-## 🛠️ Tech Stack
-- **Frontend**: React + React Router  
-- **Backend / Data**: Supabase & Render (Postgres + Auth + Realtime)  
-- **Scraper**: Node.js + Cheerio  
-- **Realtime / Lobbies**: Node.js + Socket.IO  
+## 🛠 Tech Stack
+
+* **Frontend:** React, Netlify
+* **Backend:** Node.js, Socket.IO, Render
+* **Scraping:** Cheerio
+* **Authentication:** Google OAuth
 
 ---
 
-## 📦 Installation
+## 🎮 How It Works
+
+1. **Login** with your Google account
+2. **Join or create a room** (max 6 players)
+3. A **question is scraped in real time** and shown to all players
+4. Players use **chat to discuss** possible answers
+5. Within the timer limit, the team **submits their final answer**
+6. Game continues with new questions until session ends
+
+---
+
+## 📦 Installation & Setup
 
 ```bash
 # Clone repo
 git clone https://github.com/tuxa4life/ra-sad-rodis.git
-cd ra-sad-rodis
+cd rasadrodis
 
 # Install dependencies
-cd client
 npm install
+
+# Run server
+cd server
 npm start
 
-cd ../server
-npm install
-npm run dev
+# Run client
+cd client
+npm start
 ```
 
-## ⚙️ Environment Variables (Client side)
+Make sure you add your Google OAuth credentials and environment variables for both frontend and backend.
 
-```bash
-# If using create-react-app
-REACT_APP_SUPABASE_URL=your_supabase_url
-REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
-REACT_APP_GOOGLE_CLIENT_ID="your_google_client_id"
-```
-
-## ⚙️ Environment Variables (Server side)
-
-```bash
-# If using Render
-PORT=your_port
-```
-
-## ✂️ Using scraper
-If you want to use scraper yourself:
-```bash
-cd scraper
-npm install
-node scraper.js
-```
-
-Result file will be output in `Scraper` folder.
+---

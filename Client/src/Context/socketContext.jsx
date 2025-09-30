@@ -26,6 +26,11 @@ const SocketProvider = ({ children }) => {
             setGame(data)
         })
 
+        socket.on('enter-room', (roomId) => {
+            navigate(`/room/${roomId}`)
+
+        })
+
         socket.on('enter-game', (roomId) => {
             navigate(`/game/${roomId}`)
         })
@@ -36,12 +41,11 @@ const SocketProvider = ({ children }) => {
     }
 
     const createRoom = (roomId, count, time) => { // routing is from lobby
-        socket.emit('create-room', { roomId, count, time })
+        socket.emit('join-room', { roomId, count, time })
     }
 
     const joinRoom = (roomId) => {
         socket.emit('join-room', { roomId })
-        navigate(`/room/${roomId}`)
     }
 
     const leaveRoom = (roomId) => {
@@ -63,7 +67,11 @@ const SocketProvider = ({ children }) => {
         socket.emit('fetch-question', roomId)
     }
 
-    const data = { clientCount, changeClientData, rooms, game, createRoom, joinRoom, leaveRoom, sendMessage, startGame, fetchQuestion }
+    const lastQuestion = (roomId) => {
+        socket.emit('last-question', roomId)
+    }
+
+    const data = { clientCount, changeClientData, rooms, game, createRoom, joinRoom, leaveRoom, sendMessage, startGame, fetchQuestion, lastQuestion }
     return <SocketContext.Provider value={data}>
         {children}
     </SocketContext.Provider>

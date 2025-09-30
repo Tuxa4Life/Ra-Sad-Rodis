@@ -17,13 +17,14 @@ server.listen(PORT, () => {
 })
 
 const rooms = {}
+const questionCount = (await getQuestionCount()) || 2000
 
-// TODO: kick players with same id
 io.on('connection', (socket) => {
     console.log('> Client connected: ', socket.id)
     io.emit('client-count', io.engine.clientsCount)
 
-    const idsNcount = Object.entries(rooms).map(([key, e]) => ({ // Loading already existing rooms while opening page
+    const idsNcount = Object.entries(rooms).map(([key, e]) => ({
+        // Loading already existing rooms while opening page
         name: key,
         count: e.players.length,
         maxCount: e.meta.maxPlayerCount,
@@ -56,7 +57,7 @@ io.on('connection', (socket) => {
             count: e.players.length,
             maxCount: e.meta.maxPlayerCount,
         }))
-        
+
         io.emit('rooms-changed', idsNcount)
     })
 
@@ -83,31 +84,30 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('game-state', rooms[roomId])
     })
 
-    socket.on('create-room', ({ roomId, count, time }) => {
+    socket.on('join-room', ({ roomId, count = 6, time = 60 }) => {
         if (!rooms[roomId]) {
             rooms[roomId] = {
                 id: roomId,
                 players: [],
+                questions: [],
+                qIndex: 0,
                 guesser: 0,
-                answers: [],
                 guesses: 0,
                 round: 0,
+                chat: [],
                 meta: {
                     maxPlayerCount: count,
                     maxTime: time,
                 },
-                question: {
-                    id: 0,
-                    question: '',
-                    answer: '',
-                    explanation: '',
-                },
-                chat: [],
             }
+            console.log('Room created:', rooms[roomId])
         }
 
-        if (!rooms[roomId].players.find((player) => player.id === socket.data.id)) {
-            rooms[roomId].players.push({
+        const room = rooms[roomId]
+        if (room.players.length === room.meta.maxPlayerCount) return
+
+        if (!room.players.find((p) => p.id === socket.data.id)) {
+            room.players.push({
                 id: socket.data.id,
                 username: socket.data.username,
                 picture: socket.data.picture,
@@ -116,45 +116,24 @@ io.on('connection', (socket) => {
 
         socket.join(roomId)
 
-        console.log('Room created:')
-        console.log(rooms[roomId])
-
         const idsNcount = Object.entries(rooms).map(([key, e]) => ({
             name: key,
             count: e.players.length,
             maxCount: e.meta.maxPlayerCount,
         }))
+        
+        socket.emit('enter-room', roomId) // send client to room
 
         io.emit('rooms-changed', idsNcount)
-        io.to(roomId).emit('game-state', rooms[roomId])
-
+        io.to(roomId).emit('game-state', room)
     })
 
-    socket.on('join-room', ({ roomId }) => {
-        if (!rooms[roomId].players.find((player) => player.id === socket.data.id)) {
-            rooms[roomId].players.push({
-                id: socket.data.id,
-                username: socket.data.username,
-                picture: socket.data.picture,
-            })
-
-            console.log(socket.data.username, 'joined room', roomId)
-            socket.join(roomId)
-
-            const idsNcount = Object.entries(rooms).map(([key, e]) => ({
-                name: key,
-                count: e.players.length,
-                maxCount: e.meta.maxPlayerCount,
-            }))
-
-            io.emit('rooms-changed', idsNcount)
-            io.to(roomId).emit('game-state', rooms[roomId])
-        }
-    })
-
-    socket.on('chat-message', ({roomId, authorId, author, content, picture}) => {
+    socket.on('chat-message', ({ roomId, authorId, author, content, picture }) => {
         rooms[roomId].chat.push({
-            authorId, author, content, picture
+            authorId,
+            author,
+            content,
+            picture,
         })
 
         io.to(roomId).emit('game-state', rooms[roomId])
@@ -165,15 +144,34 @@ io.on('connection', (socket) => {
     })
 
     socket.on('fetch-question', async (roomId) => {
-        const questionCount = await getQuestionCount()
-        const questionData = await getQuestion(Math.floor(Math.random() * (questionCount - 1) + 1))
-
         const game = rooms[roomId]
-        game.question = questionData
-        game.round ++
-        game.guesser = game.guesser + 1 === game.players.length ? 0 : game.guesser + 1
+        if (!game) return
 
-        console.log(rooms[roomId])
-        io.to(roomId).emit('game-state', rooms[roomId])
+        if (game.qIndex < game.questions.length - 1) {
+            game.qIndex ++
+            io.to(roomId).emit('game-state', game)
+            return
+        }
+        const usedIds = new Set(game.questions.map((q) => q.id))
+
+        let questionId
+        do {
+            questionId = Math.floor(Math.random() * questionCount)
+        } while (usedIds.has(questionId))
+
+        const questionData = await getQuestion(questionId)
+
+        game.questions.push(questionData)
+        game.qIndex = game.questions.length - 1
+        game.guesser = (game.guesser + 1) % game.players.length
+        game.round ++
+
+        io.to(roomId).emit('game-state', game)
+    })
+
+    socket.on('last-question', (roomId) => {
+        const game = rooms[roomId]
+        game.qIndex = Math.max(0, game.qIndex - 1)
+        io.to(roomId).emit('game-state', game)
     })
 })

@@ -13,7 +13,7 @@ Players join rooms, chat in real time, and work together to solve questions scra
 * ❓ **Dynamic questions** – fetched and scraped in real time with Cheerio
 * ⏱ **Timed rounds** – limited discussion window before answers must be locked in
 * 🔑 **Google login** – secure and quick authentication
-* 🌐 **Hosting** –
+* 🌐 **Hosting** – [Demo](https://ra-sad-rodis.tuxa.ge/)
 
   * Backend: [Render](https://render.com)
   * Frontend: [Netlify](https://www.netlify.com)

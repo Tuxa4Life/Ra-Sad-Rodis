@@ -1,7 +1,6 @@
 # Ignore node_modules in both client and server
 /client/node_modules/
 /server/node_modules/
-/scraper/node_modules/
 
 # Ignore Yarn Plug'n'Play files (if used)
 /.pnp

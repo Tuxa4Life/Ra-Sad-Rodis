@@ -17,23 +17,23 @@ const CreateRoom = ({ close, create }) => {
     return <div style={{ width: '100%', height: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'fixed', top: '0', left: '0', zIndex: '2', backgroundColor: 'rgba(0, 0, 0, 0.6)' }}>
         <form onSubmit={submit} className="ui form" style={{ backgroundColor: 'white', width: '400px', padding: '15px', borderRadius: '7px' }}>
             <h1 className="ui header">ოთახის შექმნა</h1>
-            <div class="field">
+            <div className="field">
                 <label>ოთახის სახელი</label>
                 <input type="text" placeholder="ოთახის სახელი" value={roomName} onChange={e => setRoomName(e.target.value.replace(' ', ''))} />
             </div>
 
-            <div class="field">
+            <div className="field">
                 <label>მაქსიმალური მონაწილეთა რაოდენობა (მაქს. 6)</label>
                 <input type="number" min={1} max={6} placeholder="მაქსიმალური მონაწილეთა რაოდენობა" value={playerCount} onChange={e => setPlayerCount(e.target.value)} />
             </div>
 
-            <div class="field">
+            <div className="field">
                 <label>პასუხის გასაცემი დრო (წამი)</label>
                 <input type="number" min={10} max={300} placeholder="დრო" value={time} onChange={e => setTime(e.target.value)} />
             </div>
 
-            <button class="ui button primary" style={{fontWeight: '300'}} type="submit">შექმნა</button>
-            <button onClick={close} class="ui button" style={{fontWeight: '300'}} type="button">დახურვა</button>
+            <button className="ui button primary" style={{fontWeight: '300'}} type="submit">შექმნა</button>
+            <button onClick={close} className="ui button" style={{fontWeight: '300'}} type="button">დახურვა</button>
         </form>
     </div>
 }

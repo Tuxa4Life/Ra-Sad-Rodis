@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { io } from 'socket.io-client'
 
 const socket = io(process.env.REACT_APP_SERVER_URL || 'http://localhost:5000')
@@ -11,6 +11,8 @@ const SocketProvider = ({ children }) => {
     const [game, setGame] = useState([])
 
     const navigate = useNavigate()
+    const location = useLocation()
+
     useEffect(() => {
         socket.on('client-count', (count) => {
             setClientCount(count)
@@ -23,7 +25,10 @@ const SocketProvider = ({ children }) => {
         socket.on('game-state', (data) => {
             setGame(data)
         })
-        
+
+        socket.on('enter-game', (roomId) => {
+            navigate(`/game/${roomId}`)
+        })
     }, [])
 
     const changeClientData = (id, username, picture) => {
@@ -45,13 +50,22 @@ const SocketProvider = ({ children }) => {
     }
 
     const sendMessage = (roomId, content) => {
-        const {id, name, picture} = JSON.parse(localStorage.getItem('user'))
-        socket.emit('chat-message', {roomId, authorId: id, author: name, content, picture})
+        const { id, name, picture } = JSON.parse(localStorage.getItem('user'))
+        socket.emit('chat-message', { roomId, authorId: id, author: name, content, picture })
     }
 
-    const data = {clientCount, changeClientData, rooms, game, createRoom, joinRoom, leaveRoom, sendMessage}
+    const startGame = (roomId) => {
+        socket.emit('fetch-question', roomId)
+        socket.emit('game-start', roomId)
+    }
+
+    const fetchQuestion = (roomId) => {
+        socket.emit('fetch-question', roomId)
+    }
+
+    const data = { clientCount, changeClientData, rooms, game, createRoom, joinRoom, leaveRoom, sendMessage, startGame, fetchQuestion }
     return <SocketContext.Provider value={data}>
-        { children }
+        {children}
     </SocketContext.Provider>
 }
 export { SocketProvider }

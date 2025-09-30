@@ -12,9 +12,9 @@ const Lobby = () => {
     const renderedRooms = rooms.map((e, i) => {
         return <div key={i} className="room-item" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '430px', height: '55px', backgroundColor: 'white', margin: '10px', border: '1px rgba(0, 0, 0, 0.2) solid', borderRadius: '5px' }}>
             <p style={{ margin: '0 0 0 15px', fontSize: '18px' }}>{e.name}</p>
-            <div onClick={() => joinRoom(e.name)} class="ui animated vertical button" tabindex="0" style={{ width: '100px', margin: '0 7px 0 0' }}>
-                <div class="visible content">{e.count}/{e.maxCount}</div>
-                <div class="hidden content" style={{ fontWeight: '300' }}>
+            <div onClick={() => joinRoom(e.name)} className="ui animated vertical button" tabIndex="0" style={{ width: '100px', margin: '0 7px 0 0' }}>
+                <div className="visible content">{e.count}/{e.maxCount}</div>
+                <div className="hidden content" style={{ fontWeight: '300' }}>
                     შესვლა
                 </div>
             </div>
@@ -25,8 +25,8 @@ const Lobby = () => {
         {createRoomOpen && <CreateRoom create={createRoom} close={() => setCreateRoomOpen(false)} />}
 
         {
-            loggedIn && <button onClick={logOut} class="ui basic button" style={{ position: 'absolute', top: '10px', left: '10px' }}>
-                <i style={{ transform: 'scaleX(-1)' }} class="icon sign-out"></i>
+            loggedIn && <button onClick={logOut} className="ui basic button" style={{ position: 'absolute', top: '10px', left: '10px' }}>
+                <i style={{ transform: 'scaleX(-1)' }} className="icon sign-out"></i>
                 Log out
             </button>
         }
@@ -58,7 +58,7 @@ const Lobby = () => {
                         { renderedRooms }
                     </div>
 
-                    <div class="ui horizontal divider">ან</div>
+                    <div className="ui horizontal divider">ან</div>
 
                     <button onClick={() => setCreateRoomOpen(true)} style={{ width: '100%', fontWeight: '300' }} className="ui button">შექმენი ოთახი</button>
                 </div>

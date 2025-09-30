@@ -39,7 +39,7 @@ const Chat = ({ chat, id, roomId }) => {
 
     return (
         <form onSubmit={submit} style={{ width: '100%', height: '100%' }}>
-            <div className="ui list" style={{ height: '90%', border: '1px solid rgba(34, 36, 38, .15)', borderRadius: '5px', padding: '7px', overflowY: 'auto', }} >
+            <div className="ui list" style={{ height: '90%', border: '1px solid rgba(34, 36, 38, .15)', borderRadius: '5px', padding: '7px', overflowY: 'auto' }} >
                 {renderedMessages}
                 <div ref={bottomRef} />
             </div>

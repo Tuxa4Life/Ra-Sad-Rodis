@@ -2,6 +2,7 @@ import express from 'express'
 import http from 'http'
 import { Server } from 'socket.io'
 import cors from 'cors'
+import { getQuestion, getQuestionCount } from './scraper.js'
 
 const app = express()
 app.use(cors())
@@ -96,6 +97,7 @@ io.on('connection', (socket) => {
                     maxTime: time,
                 },
                 question: {
+                    id: 0,
                     question: '',
                     answer: '',
                     explanation: '',
@@ -155,6 +157,23 @@ io.on('connection', (socket) => {
             authorId, author, content, picture
         })
 
+        io.to(roomId).emit('game-state', rooms[roomId])
+    })
+
+    socket.on('game-start', (roomId) => {
+        io.to(roomId).emit('enter-game', roomId)
+    })
+
+    socket.on('fetch-question', async (roomId) => {
+        const questionCount = await getQuestionCount()
+        const questionData = await getQuestion(Math.floor(Math.random() * (questionCount - 1) + 1))
+
+        const game = rooms[roomId]
+        game.question = questionData
+        game.round ++
+        game.guesser = game.guesser + 1 === game.players.length ? 0 : game.guesser + 1
+
+        console.log(rooms[roomId])
         io.to(roomId).emit('game-state', rooms[roomId])
     })
 })

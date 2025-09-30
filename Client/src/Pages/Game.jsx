@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useSockets, useUserContext } from "../Context/useContext";
 import Chat from '../Components/Chat'
 import { useEffect, useState } from "react";
+import Timer from "../Components/Timer";
 
 const Game = () => {
     const [imageOpen, setImageOpen] = useState(false)
@@ -9,14 +10,14 @@ const Game = () => {
 
     const { id } = useParams()
     const { user } = useUserContext()
-    const { game, fetchQuestion, lastQuestion } = useSockets()
+    const { game, fetchQuestion, lastQuestion, roundState, setRoundState } = useSockets()
 
     // current question shortcut
     const currentQuestion = game?.questions?.[game?.qIndex]
 
     return <div style={{ width: '100%', display: 'flex', height: '100dvh' }}>
         <div style={{ width: '60%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-            <h1 style={{textAlign: 'left', width: '80%'}}>შეკითხვა #{game?.qIndex + 1}:</h1>
+            <h1 style={{ textAlign: 'left', width: '80%' }}>შეკითხვა #{game?.qIndex + 1}:</h1>
             {currentQuestion ? (
                 <div style={{ padding: '20px', backgroundColor: 'rgba(0, 0, 0, 0.1)', borderRadius: '5px', boxShadow: 'inset 0px 0px 25px -20px #000000', width: '80%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     {currentQuestion.image && (
@@ -32,16 +33,21 @@ const Game = () => {
             ) : <p>404: შეკითხვა ვერ ამოიტვირთა</p>}
 
             <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{marginTop: '40px'}}>
+                    <Timer time={game?.meta.maxTime} roundState={roundState} roundOver={() => setRoundState(false)} />
+                </div>
+
                 <div className="ui icon action input" style={{ width: '80%', marginTop: '50px' }}>
-                    <input type="text" placeholder="პასუხი" />
+                    <input type="text" placeholder="ეს არ მუშაობს ჯერ" />
                     <button className="ui icon button">
                         <i className="check icon"></i>
                     </button>
                 </div>
+
                 <div style={{ width: '80%', marginTop: '20px', display: 'flex', justifyContent: 'right' }}>
-                    <button onClick={() => lastQuestion(id)} className="ui button secondary inverted">უკან</button>
+                    <button onClick={() => {lastQuestion(id); setRoundState(false)}} className="ui button secondary inverted">უკან</button>
                     <button onClick={() => setAnswerOpen(true)} className="ui button">პასუხი</button>
-                    <button onClick={() => fetchQuestion(id)} className="ui button secondary inverted">შემდეგი</button>
+                    <button onClick={() => {fetchQuestion(id); setRoundState(false)}} className="ui button secondary inverted">შემდეგი</button>
                 </div>
             </div>
         </div>

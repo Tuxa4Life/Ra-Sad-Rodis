@@ -152,11 +152,11 @@ io.on('connection', (socket) => {
             io.to(roomId).emit('game-state', game)
             return
         }
-        const usedIds = new Set(game.questions.map((q) => q.id))
+        const usedIds = new Set([...game.questions.map(q => q.id), 160, 371, 372, 373, 374, 375, 376, 377, 378, 379, 380, 875])
 
         let questionId
         do {
-            questionId = Math.floor(Math.random() * questionCount)
+            questionId = Math.floor(Math.random() * (questionCount - 1)) + 1
         } while (usedIds.has(questionId))
 
         const questionData = await getQuestion(questionId)
@@ -167,6 +167,7 @@ io.on('connection', (socket) => {
         game.round ++
 
         io.to(roomId).emit('game-state', game)
+        io.to(roomId).emit('start-timer')
     })
 
     socket.on('last-question', (roomId) => {

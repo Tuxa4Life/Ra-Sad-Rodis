@@ -9,6 +9,7 @@ const Room = () => {
     const { user } = useUserContext()
 
     const [myIndex, setMyIndex] = useState(-1)
+    const [btnText, setBtnText] = useState('დააკოპირე')
 
     useEffect(() => {
         if (!game?.players) return
@@ -48,7 +49,18 @@ const Room = () => {
 
             <h2>დრო: {game?.meta?.maxTime} წამი</h2>
 
-            {myIndex === 0 ? <button onClick={() => startGame(id)} style={{ marginTop: '30px' }} className="ui button">დაწყება</button> : <button style={{ marginTop: '30px', fontWeight: '300', color: 'black' }} className="ui button disabled">ველოდებით ოთახის შემქმნელს რომ დაიწყოს თამაში</button>}
+            {myIndex === 0 ? <button onClick={() => startGame(id)} style={{ marginTop: '30px' }} className="ui huge button">დაწყება</button> : <button style={{ marginTop: '30px', fontWeight: '300', color: 'black' }} className="ui button disabled">ველოდებით ოთახის შემქმნელს რომ დაიწყოს თამაში</button>}
+
+            <div style={{ marginTop: '50px' }}>
+                <h3>გააზიარე:</h3>
+                <div onClick={() => {
+                    setBtnText('დაკოპირებულია!')
+                    navigator.clipboard.writeText(`http://${window.location.hostname}/room/${id}`).then(() => setTimeout(() => setBtnText('დააკოპირე'), 1500))
+                }} class="ui animated vertical button" tabIndex="0">
+                    <div class="visible content">http://{window.location.hostname}/room/{id}</div>
+                    <div class="hidden content">{btnText}</div>
+                </div>
+            </div>
         </div>
         <div style={{ height: '80dvh', width: '35%' }}>
             <Chat chat={game?.chat} id={user?.id} roomId={id} />

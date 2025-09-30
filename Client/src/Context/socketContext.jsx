@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { io } from 'socket.io-client'
 
 const socket = io(process.env.REACT_APP_SERVER_URL || 'http://localhost:5000')
@@ -9,9 +9,9 @@ const SocketProvider = ({ children }) => {
     const [clientCount, setClientCount] = useState(0)
     const [rooms, setRooms] = useState([])
     const [game, setGame] = useState([])
+    const [roundState, setRoundState] = useState(false)
 
     const navigate = useNavigate()
-    const location = useLocation()
 
     useEffect(() => {
         socket.on('client-count', (count) => {
@@ -34,6 +34,8 @@ const SocketProvider = ({ children }) => {
         socket.on('enter-game', (roomId) => {
             navigate(`/game/${roomId}`)
         })
+
+        socket.on('start-timer', () => setRoundState(true))
     }, [])
 
     const changeClientData = (id, username, picture) => {
@@ -71,7 +73,7 @@ const SocketProvider = ({ children }) => {
         socket.emit('last-question', roomId)
     }
 
-    const data = { clientCount, changeClientData, rooms, game, createRoom, joinRoom, leaveRoom, sendMessage, startGame, fetchQuestion, lastQuestion }
+    const data = { clientCount, changeClientData, rooms, game, createRoom, joinRoom, setRoundState, leaveRoom, sendMessage, startGame, fetchQuestion, lastQuestion, roundState }
     return <SocketContext.Provider value={data}>
         {children}
     </SocketContext.Provider>

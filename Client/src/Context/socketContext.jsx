@@ -73,7 +73,7 @@ const SocketProvider = ({ children }) => {
         socket.emit('last-question', roomId)
     }
 
-    const data = { clientCount, changeClientData, rooms, game, createRoom, joinRoom, setRoundState, leaveRoom, sendMessage, startGame, fetchQuestion, lastQuestion, roundState }
+    const data = { socket, clientCount, changeClientData, rooms, game, createRoom, joinRoom, setRoundState, leaveRoom, sendMessage, startGame, fetchQuestion, lastQuestion, roundState }
     return <SocketContext.Provider value={data}>
         {children}
     </SocketContext.Provider>

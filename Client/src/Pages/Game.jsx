@@ -1,8 +1,9 @@
 import { useParams } from "react-router-dom";
 import { useSockets, useUserContext } from "../Context/useContext";
 import Chat from '../Components/Chat'
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Timer from "../Components/Timer";
+import Image from "../Components/Image";
 
 const Game = () => {
     const [imageOpen, setImageOpen] = useState(false)
@@ -12,7 +13,6 @@ const Game = () => {
     const { user } = useUserContext()
     const { game, fetchQuestion, lastQuestion, roundState, setRoundState } = useSockets()
 
-    // current question shortcut
     const currentQuestion = game?.questions?.[game?.qIndex]
 
     return <div style={{ width: '100%', display: 'flex', height: '100dvh' }}>
@@ -21,12 +21,7 @@ const Game = () => {
             {currentQuestion ? (
                 <div style={{ padding: '20px', backgroundColor: 'rgba(0, 0, 0, 0.1)', borderRadius: '5px', boxShadow: 'inset 0px 0px 25px -20px #000000', width: '80%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     {currentQuestion.image && (
-                        <img
-                            onClick={() => setImageOpen(true)}
-                            style={{ height: '50dvh', width: '90%', objectFit: 'contain', cursor: 'pointer' }}
-                            src={currentQuestion.image}
-                            alt="ERROR LOADING QUESTION IMAGE"
-                        />
+                        <Image imageUrl={currentQuestion.image} styles={{ height: '50dvh', width: '90%', objectFit: 'contain', cursor: 'pointer' }} />
                     )}
                     <h1>{currentQuestion.question}</h1>
                 </div>
@@ -58,7 +53,7 @@ const Game = () => {
 
         {imageOpen && currentQuestion && (
             <div onClick={() => setImageOpen(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-                <img onClick={e => e.stopPropagation()} style={{ height: '95dvh', width: '95%', objectFit: 'contain' }} src={currentQuestion.image} alt="ERROR LOADING LARGE QUESTION IMAGE" />
+                <img onClick={e => e.stopPropagation()} style={{ height: '95dvh', width: '95%', objectFit: 'contain' }} src={currentQuestion.image} alt="ERROR LOADING" />
                 <i style={{ position: 'absolute', top: '30px', right: '20px', color: 'white', fontSize: '50px', cursor: 'pointer' }} className="times icon"></i>
             </div>
         )}

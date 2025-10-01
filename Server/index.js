@@ -2,6 +2,8 @@ import express from 'express'
 import http from 'http'
 import { Server } from 'socket.io'
 import cors from 'cors'
+import axios from 'axios'
+import https from 'https'
 import { getQuestion, getQuestionCount } from './scraper.js'
 
 const app = express()
@@ -121,7 +123,7 @@ io.on('connection', (socket) => {
             count: e.players.length,
             maxCount: e.meta.maxPlayerCount,
         }))
-        
+
         socket.emit('enter-room', roomId) // send client to room
 
         io.emit('rooms-changed', idsNcount)
@@ -148,11 +150,11 @@ io.on('connection', (socket) => {
         if (!game) return
 
         if (game.qIndex < game.questions.length - 1) {
-            game.qIndex ++
+            game.qIndex++
             io.to(roomId).emit('game-state', game)
             return
         }
-        const usedIds = new Set([...game.questions.map(q => q.id), 160, 371, 372, 373, 374, 375, 376, 377, 378, 379, 380, 875])
+        const usedIds = new Set([...game.questions.map((q) => q.id), 160, 371, 372, 373, 374, 375, 376, 377, 378, 379, 380, 875])
 
         let questionId
         do {
@@ -164,7 +166,7 @@ io.on('connection', (socket) => {
         game.questions.push(questionData)
         game.qIndex = game.questions.length - 1
         game.guesser = (game.guesser + 1) % game.players.length
-        game.round ++
+        game.round++
 
         io.to(roomId).emit('game-state', game)
         io.to(roomId).emit('start-timer')
@@ -174,5 +176,21 @@ io.on('connection', (socket) => {
         const game = rooms[roomId]
         game.qIndex = Math.max(0, game.qIndex - 1)
         io.to(roomId).emit('game-state', game)
+    })
+
+    socket.on('get-image', async (url) => {
+        try {
+            const response = await axios.get(url, {
+                responseType: 'arraybuffer',
+                httpsAgent: new https.Agent({ rejectUnauthorized: false }),
+            })
+
+            const base64Image = Buffer.from(response.data, 'binary').toString('base64')
+            const mimeType = response.headers['content-type']
+
+            socket.emit('image-data', `data:${mimeType};base64,${base64Image}`)
+        } catch (err) {
+            console.error('Image fetch failed:', err.message)
+        }
     })
 })
